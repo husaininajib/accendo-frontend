@@ -4,6 +4,7 @@ import CountryActions from './CountryActions';
 import { useOutletContext } from 'react-router-dom';
 import { ColorModeContext } from './RootLayout';
 import Loading from './Loading';
+import NoData from './NoData';
 
 export interface FilterData {
     search: string;
@@ -98,7 +99,13 @@ const CountryView = () => {
                     paddingTop: '10px',
                 }}
             >
-                {filteredCountry.length > 0 ? itemToDisplay(isPending, view) : <Loading />}
+                {countries.length < 1 ? (
+                    <Loading />
+                ) : filteredCountry.length > 0 ? (
+                    itemToDisplay(isPending, view)
+                ) : (
+                    <NoData />
+                )}
             </div>
         </>
     );

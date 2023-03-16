@@ -95,7 +95,7 @@ const CountryDetails = () => {
             </Button>
 
             {isCountryExist(countryDetail) ? (
-                <Box sx={{ mt: '30px' }}>
+                <Box sx={{ mt: '30px', pb: { xs: '40px', sm: '0px' } }}>
                     <Box display={'flex'} alignItems="stretch" flexWrap={'wrap'} gap="10px">
                         {countryDetail?.flags.png && (
                             <CardMedia
