@@ -3,16 +3,13 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
 import EnhandedTableHead from './EnhandedTableHead';
 import { RootObject } from '../helper/types';
 import { Chip } from '@mui/material';
-
-function createData(name: string, calories: number, fat: number, carbs: number, protein: number) {
-    return { name, calories, fat, carbs, protein };
-}
+import { useNavigate } from 'react-router-dom';
+import { numberWithCommas } from '../helper/utils';
 
 interface Props {
     rows: RootObject[];
@@ -20,75 +17,96 @@ interface Props {
 
 export default function CustomTable(props: Props) {
     const { rows } = props;
+    const navigate = useNavigate();
+
+    const handleGoToCountyDetail = (countryName: string) => {
+        navigate(`/${countryName.toLowerCase()}`);
+    };
     return (
-        <Paper
+        <Box
             sx={{
                 overflow: 'hidden',
-                border: '3px solid green',
                 px: { xs: '5px', sm: '50px', md: '150px' },
             }}
         >
             <TableContainer
                 sx={{
                     width: '100%',
-                    border: '2px solid blue',
                     maxHeight: '75vh',
                 }}
             >
-                <Table
-                    stickyHeader
-                    sx={{ width: '100%', border: '2px solid orange' }}
-                    size="small"
-                    aria-label="a dense table"
-                >
+                <Table stickyHeader sx={{ width: '100%' }} size="small" aria-label="a dense table">
                     <EnhandedTableHead />
                     <TableBody>
-                        {/* <Content data={rows} /> */}
-                        {rows.map((row, i) => (
-                            <TableRow key={i} hover role="checkbox" tabIndex={-1}>
-                                <TableCell component="th" scope="row" style={{ width: '150px' }}>
-                                    <img
-                                        src={row.flags.png}
-                                        alt={row.name.official}
-                                        style={{ width: '80px', height: 'auto' }}
-                                    />
-                                </TableCell>
+                        {rows.map((row, i) => {
+                            const countryName = row.name.common;
 
-                                <TableCell align="left" style={{ width: '150px' }}>
-                                    {row.population}
-                                </TableCell>
-
-                                <TableCell align="left" style={{ width: '150px' }}>
-                                    {row.region}
-                                </TableCell>
-
-                                <TableCell align="left" style={{ width: '150px' }}>
-                                    {row.capital?.length > 0 ? row.capital[0] : 'N/A'}
-                                </TableCell>
-
-                                <TableCell align="left" style={{ width: '150px' }}>
-                                    {row.name.official}
-                                </TableCell>
-
-                                <TableCell align="left" style={{ width: '150px' }}>
-                                    {row.currencies
-                                        ? Object.entries(row.currencies).map((currency, i) => {
-                                              return (
-                                                  <Chip
-                                                      key={i}
-                                                      label={`${currency[1].symbol} ${currency[0]}`}
-                                                      sx={{ mr: '3px' }}
-                                                      size="small"
-                                                  />
-                                              );
-                                          })
-                                        : 'N/A'}
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                            return (
+                                <TableRow key={i} hover role="checkbox" tabIndex={-1} sx={{ cursor: 'pointer' }}>
+                                    <TableCell
+                                        component="th"
+                                        scope="row"
+                                        style={{ width: '150px' }}
+                                        onClick={() => handleGoToCountyDetail(countryName)}
+                                    >
+                                        <img
+                                            src={row.flags.png}
+                                            alt={row.name.official}
+                                            style={{ width: '80px', height: 'auto' }}
+                                        />
+                                    </TableCell>
+                                    <TableCell
+                                        align="left"
+                                        style={{ width: '150px' }}
+                                        onClick={() => handleGoToCountyDetail(countryName)}
+                                    >
+                                        {numberWithCommas(row.population)}
+                                    </TableCell>
+                                    <TableCell
+                                        align="left"
+                                        style={{ width: '150px' }}
+                                        onClick={() => handleGoToCountyDetail(countryName)}
+                                    >
+                                        {row.region}
+                                    </TableCell>
+                                    <TableCell
+                                        align="left"
+                                        style={{ width: '150px' }}
+                                        onClick={() => handleGoToCountyDetail(countryName)}
+                                    >
+                                        {row.capital?.length > 0 ? row.capital[0] : 'N/A'}
+                                    </TableCell>
+                                    <TableCell
+                                        align="left"
+                                        style={{ width: '150px' }}
+                                        onClick={() => handleGoToCountyDetail(countryName)}
+                                    >
+                                        {row.name.official}
+                                    </TableCell>
+                                    <TableCell
+                                        align="left"
+                                        style={{ width: '150px' }}
+                                        onClick={() => handleGoToCountyDetail(countryName)}
+                                    >
+                                        {row.currencies
+                                            ? Object.entries(row.currencies).map((currency, i) => {
+                                                  return (
+                                                      <Chip
+                                                          key={i}
+                                                          label={`${currency[1].symbol} ${currency[0]}`}
+                                                          sx={{ mr: '3px' }}
+                                                          size="small"
+                                                      />
+                                                  );
+                                              })
+                                            : 'N/A'}
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
                     </TableBody>
                 </Table>
             </TableContainer>
-        </Paper>
+        </Box>
     );
 }

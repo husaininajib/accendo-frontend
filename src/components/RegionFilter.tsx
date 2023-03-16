@@ -3,7 +3,7 @@ import { REGIONS } from '../constants';
 
 const RegionFilter = (props: { dropdownValue: string; handleChange: (x: string) => void }) => {
     const { dropdownValue, handleChange } = props;
-    // console.log(dropdownValue, 'j');s
+
     return (
         <FormControl size="small" sx={{ minWidth: '180px' }}>
             <InputLabel id="demo-simple-select-label">Filter By Region</InputLabel>

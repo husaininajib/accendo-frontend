@@ -1,11 +1,12 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLoaderData } from 'react-router-dom';
 import Header from '../components/Header';
+import { RootObject } from '../helper/types';
 
 const CountryMainPage = () => {
     const [view, setView] = React.useState<'table' | 'card'>('card');
 
-    const handleChangeView = () => {
+    const handleToggleView = () => {
         setView((prevView) => {
             return prevView === 'table' ? 'card' : 'table';
         });
@@ -14,7 +15,7 @@ const CountryMainPage = () => {
     return (
         <>
             <Header view={view} />
-            <Outlet context={[view, handleChangeView]} />
+            <Outlet context={[view, handleToggleView]} />
         </>
     );
 };

@@ -1,49 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
-import {
-    createBrowserRouter,
-    createRoutesFromElements,
-    BrowserRouter,
-    Route,
-    Routes,
-    RouterProvider,
-    Outlet,
-} from 'react-router-dom';
-// import { Route, Routes } from 'react-router';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import React, { lazy, Suspense } from 'react';
-import { useParams } from 'react-router';
 import RootLayout from './components/RootLayout';
-import CountryView from './components/CountryView';
-import CountryDetails from './components/CountryDetails';
-// import Countries from './pages/countries';
+import Loading from './components/Loading';
 
 const CountryMainPage = lazy(() => import('./pages/CountryMainPage'));
 const CountryDetailsPage = lazy(() => import('./pages/CountryDetailsPage'));
+const AllCountries = lazy(() => import('./components/CountryView'));
 
 function App() {
-    const [view, setView] = React.useState<'table' | 'card'>('card');
-
-    const handleChangeView = () => {
-        setView((prevView) => {
-            return prevView === 'table' ? 'card' : 'table';
-        });
-    };
-
     return (
-        <Suspense fallback={<span />}>
+        <Suspense fallback={<Loading marginTop={250} />}>
             <BrowserRouter>
-                <RootLayout view={view}>
+                <RootLayout>
                     <Routes>
                         <Route path="/" element={<CountryMainPage />}>
-                            {/* <Route index element={<CountryView view={view} handleChangeView={handleChangeView} />} /> */}
-                            <Route index element={<CountryView />} />
-                            <Route path=":id" element={<CountryDetailsPage />} />
+                            <Route index element={<AllCountries />} />
+                            <Route path=":dynamicCountry" element={<CountryDetailsPage />} />
                         </Route>
                     </Routes>
                 </RootLayout>
             </BrowserRouter>
         </Suspense>
-        // <RouterProvider router={router} />
     );
 }
 

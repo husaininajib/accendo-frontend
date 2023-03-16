@@ -3,16 +3,10 @@ import Header from './Header';
 import { useTheme, ThemeProvider, createTheme } from '@mui/material/styles';
 
 interface Props {
-    view: 'table' | 'card';
     children: React.ReactNode;
 }
 
-interface FilterData {
-    search: string;
-    selectedRegion: string;
-}
-
-const RootLayout = ({ view, children }: Props) => {
+const RootLayout = ({ children }: Props) => {
     const [mode, setMode] = React.useState<'light' | 'dark'>('light');
 
     const colorMode = React.useMemo(
@@ -46,7 +40,14 @@ const RootLayout = ({ view, children }: Props) => {
     return (
         <ColorModeContext.Provider value={colorMode}>
             <ThemeProvider theme={theme}>
-                <div>{children}</div>
+                <div
+                    style={{
+                        minHeight: '100vh',
+                        backgroundColor: colorMode.mode === 'dark' ? '#000000' : 'rgba(0, 0, 0, 0.08)',
+                    }}
+                >
+                    {children}
+                </div>
             </ThemeProvider>
         </ColorModeContext.Provider>
     );

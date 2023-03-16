@@ -1,31 +1,43 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { RootObject } from '../helper/types';
 import CountryActions from './CountryActions';
-import CustomCard from './CustomCard';
-import CustomTable from './CustomTable';
 import { useOutletContext } from 'react-router-dom';
+import { ColorModeContext } from './RootLayout';
+import Loading from './Loading';
 
-interface FilterData {
+export interface FilterData {
     search: string;
     selectedRegion: string;
 }
 
-interface Props {
-    view: 'table' | 'card';
-    handleChangeView: () => void;
-}
+const CustomCard = lazy(() => import('./CustomCard'));
+const CustomTable = lazy(() => import('./CustomTable'));
 
 const CountryView = () => {
+    const [isPending, startTransition] = React.useTransition();
     const [filterData, setFilterData] = React.useState<FilterData>({
         search: '',
         selectedRegion: '',
     });
     const { countries, filteredCountry, setFilteredCountry } = useGetCountries();
-    const [view, handleChangeView] = useOutletContext<any>();
+    const [view, handleToggleView] = useOutletContext<any>();
 
     const handleFilterSearch = (value: string) => {
         setFilterData((prevState) => {
             return { ...prevState, search: value };
+        });
+        startTransition(() => {
+            const filtered = (countries as RootObject[]).filter((data) => {
+                const countryName = data.name.official.toLowerCase();
+                const searchValue = value.toLowerCase();
+                const seletedRegionValue = filterData.selectedRegion.toLowerCase();
+                if (filterData.selectedRegion) {
+                    return countryName.includes(searchValue) && data.region.toLowerCase() === seletedRegionValue;
+                }
+
+                return countryName.includes(searchValue);
+            });
+            setFilteredCountry(filtered);
         });
     };
 
@@ -33,30 +45,43 @@ const CountryView = () => {
         setFilterData((prevState) => {
             return { ...prevState, selectedRegion: value };
         });
-    };
+        startTransition(() => {
+            const filtered = (countries as RootObject[]).filter((data) => {
+                const countryName = data.name.official.toLowerCase();
+                const searchValue = filterData.search.toLowerCase();
+                const seletedRegionValue = value.toLowerCase();
+                if (seletedRegionValue) {
+                    return countryName.includes(searchValue) && data.region.toLowerCase() === seletedRegionValue;
+                }
 
-    const handleToggleView = () => {
-        // setIsCardView((prevState) => !prevState);
-        // const currentView = searchParams.get('view');
-        // const newView = currentView === 'table' ? 'card' : 'table';
-        // searchParams.set('view', newView);
-        // navigate({ search: searchParams.toString() });
-    };
-
-    React.useEffect(() => {
-        const filtered = countries.filter((data) => {
-            const countryName = data.name.official.toLowerCase();
-            const searchValue = filterData.search.toLowerCase();
-            const seletedRegionValue = filterData.selectedRegion.toLowerCase();
-            if (filterData.selectedRegion) {
-                return countryName.includes(searchValue) && data.region.toLowerCase() === seletedRegionValue;
-            }
-
-            return countryName.includes(searchValue);
+                return countryName.includes(searchValue);
+            });
+            setFilteredCountry(filtered);
         });
+    };
 
-        setFilteredCountry(filtered);
-    }, [filterData]);
+    const newHandleToggleView = () => {
+        // create a new toggle function reduced sluggish issue
+        startTransition(() => {
+            handleToggleView();
+        });
+    };
+
+    const itemToDisplay = (isPending: boolean, view: 'card' | 'table') => {
+        if (isPending) {
+            return <Loading />;
+        } else {
+            return view === 'card' ? (
+                <Suspense fallback={<Loading />}>
+                    <CustomCard rows={filteredCountry} />
+                </Suspense>
+            ) : (
+                <Suspense fallback={<Loading />}>
+                    <CustomTable rows={filteredCountry} />
+                </Suspense>
+            );
+        }
+    };
 
     return (
         <>
@@ -65,21 +90,15 @@ const CountryView = () => {
                 view={view}
                 handleFilterSearch={handleFilterSearch}
                 handleFilterRegion={handleFilterRegion}
-                handleChangeView={handleChangeView}
+                handleToggleView={newHandleToggleView}
             />
 
-            <div>
-                {view === 'card' ? (
-                    <CustomCard
-                        rows={filteredCountry}
-                        // rows={countries}
-                    />
-                ) : (
-                    <CustomTable
-                        rows={filteredCountry}
-                        // rows={countries}
-                    />
-                )}
+            <div
+                style={{
+                    paddingTop: '10px',
+                }}
+            >
+                {filteredCountry.length > 0 ? itemToDisplay(isPending, view) : <Loading />}
             </div>
         </>
     );
@@ -88,7 +107,7 @@ const CountryView = () => {
 export default CountryView;
 
 // CUSTOM HOOKS
-const useGetCountries = () => {
+export const useGetCountries = () => {
     const [countries, setCountries] = React.useState<RootObject[]>([]);
     const [filteredCountry, setFilteredCountry] = React.useState<RootObject[]>([]);
 
@@ -107,7 +126,7 @@ const useGetCountries = () => {
                 console.error(err);
             }
         };
-        console.log('here');
+        // console.log('here');
         getData();
     }, []);
 
